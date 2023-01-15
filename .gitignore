@@ -1,3 +1,6 @@
 __pycache__
 *.pyc
 beware.*
+.venv
+.aws-sam
+**/.aws-sam

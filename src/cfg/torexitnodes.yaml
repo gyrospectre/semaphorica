@@ -1,0 +1,15 @@
+torexitnodes:
+  checkpoint_provider: none
+  disabled: false
+
+  input:
+    torproject:
+      type: exit-addresses
+      tlp: TLP:CLEAR
+
+  processors:
+
+  outputs:
+    - file:
+        filename: exit-nodes.txt
+        clobber: true

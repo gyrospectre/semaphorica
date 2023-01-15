@@ -1,5 +1,6 @@
 import json
 import os
+import requests
 
 from classes import BaseOutputModule
 
@@ -29,10 +30,13 @@ class Splunk(BaseOutputModule):
             postdata['sourcetype'] = sourcetype
 
         postdata['event'] = json.loads(str(messages))
-        print(json.dumps(postdata))
-        #curl -k "https://mysplunkserver.example.com:8088/services/collector" \
-        #    -H "Authorization: Splunk CF179AE4-3C99-45F5-A7CC-3284AA91CF67" \
-        #    -d '{"event": "Hello, world!", "sourcetype": "manual"}'
+
+        r = requests.post(
+            f"http://{cfg.get('host')}/services/collector/event",
+            headers={"Authorization": f"Splunk {self._token}"},
+            data=json.dumps(postdata, ensure_ascii=False).encode("utf-8"),
+        )
+        r.raise_for_status()
 
     @classmethod
     def validate_cfg(cls, cfg):
