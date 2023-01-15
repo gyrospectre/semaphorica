@@ -1,0 +1,15 @@
+aws-networks:
+  checkpoint_provider: none
+  disabled: false
+
+  input:
+    aws-netranges:
+      tlp: TLP:CLEAR
+
+  processors:
+
+  outputs:
+    - s3object:
+        bucket_name: semaphorica-bucket
+        region: ap-southeast-2
+        object_name: awsnets_{$NOW}.txt

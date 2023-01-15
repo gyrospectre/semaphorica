@@ -1,7 +1,10 @@
 tweetlist:
+  disabled: true
+
   input:
     twitter:
       list_id: 1234567890123456789
+      tlp: TLP:CLEAR
 
   processors:
 

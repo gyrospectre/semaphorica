@@ -1,13 +1,25 @@
-import os
+import json
 
 from classes import BaseOutputModule
+
+from datetime import datetime
 
 from models import Message
 
 class File(BaseOutputModule):
 
     def send(self, cfg, messages):
-        with open(cfg['filename'], "a") as outfile:
+        if cfg.get('clobber') == True:
+            mode = "w"
+        else:
+            mode = "a"
+
+        filename = cfg.get('filename')
+
+        if '{$NOW}' in filename:
+            filename=filename.replace('{$NOW}', datetime.utcnow().isoformat("T","seconds"))
+
+        with open(filename, mode) as outfile:
             for message in messages:
                 outfile.write(str(message))
 

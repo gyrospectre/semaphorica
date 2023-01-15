@@ -46,7 +46,8 @@ class Message(BaseModel):
             'source_module': None,
             'source_identity': None,
             'body': None,
-            'provenance': []
+            'provenance': [],
+            'tlp': "TLP:AMBER"  # Safe default to Amber, should be overwritten by module
         }
 
         for (param, default) in self.param_defaults.items():

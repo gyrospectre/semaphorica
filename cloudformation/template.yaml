@@ -1,0 +1,71 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Helps you with data collection!
+
+Globals:
+  Function:
+    Timeout: 90
+
+Resources:
+  Semaphorica:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: semaphorica
+      Description: Semaphorica - Helps you with data collection!
+      CodeUri: ../src/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      MemorySize: 256
+      Role: !GetAtt ExecutionRole.Arn
+      Environment:
+        Variables:
+          SPLUNK_TOKEN: !Sub '{{resolve:secretsmanager:${AWS::StackName}/SplunkHEC:SecretString}}'
+      Events:
+        Daily:
+          Type: Schedule
+          Properties:
+            Schedule: "cron(0 12 ? * * *)"
+            Name: semaphorica-daily
+            Description: Semaphorica daily data ingest
+            Input: '{"trigger": "daily"}'
+            Enabled: true
+
+  ExecutionRole:
+      Type: 'AWS::IAM::Role'
+      Properties:
+        RoleName: !Sub '${AWS::StackName}-ExecutionRole'
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - 
+              Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action:
+                - 'sts:AssumeRole'
+        Path: /
+        Policies:
+        - 
+          PolicyName: !Sub '${AWS::StackName}-ExecutionPolicy'
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                  - ssm:PutParameter
+                Resource:
+                  - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter:${AWS::StackName}/*'
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                Resource:
+                  - !Sub 'arn:aws:s3:::${AWS::StackName}*/*'
+
+Outputs:
+  Semaphorica:
+    Description: "Semaphorica ARN"
+    Value: !GetAtt Semaphorica.Arn
